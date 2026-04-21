@@ -25,7 +25,6 @@ class BackupManager:
         self.converter = BlockConverter(notion_client=self.client)
         self.backup_date = datetime.now().strftime("%Y-%m-%d")
         self.backup_path = os.path.join(self.backup_dir, f"backup_{self.backup_date}")
-        self.attachments_path = os.path.join(self.backup_path, "attachments")
         self.stats = {"pages": 0, "errors": 0, "skipped": 0}
 
     def run(self):
@@ -63,8 +62,12 @@ class BackupManager:
         filename = f"{title}_{self.backup_date}.md"
         filepath = os.path.join(parent_dir, filename)
 
+        # 为每个页面创建独立的附件文件夹
+        page_attachments_path = os.path.join(parent_dir, f"{title}_attachments")
+        os.makedirs(page_attachments_path, exist_ok=True)
+
         blocks = self.client.get_block_children(metadata["id"])
-        converter = BlockConverter(notion_client=self.client, attachments_path=self.attachments_path)
+        converter = BlockConverter(notion_client=self.client, attachments_path=page_attachments_path, page_title=title)
         markdown_body = converter.convert_blocks_to_markdown(blocks)
         front_matter = converter.generate_front_matter(metadata)
 

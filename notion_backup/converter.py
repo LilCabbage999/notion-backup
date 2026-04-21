@@ -9,9 +9,10 @@ class BlockConverter:
     IGNORED_TYPES = {"breadcrumb", "table_of_contents"}
     TOGGLE_TYPES = {"toggle", "toggle_heading_1", "toggle_heading_2", "toggle_heading_3"}
 
-    def __init__(self, notion_client=None, attachments_path=None):
+    def __init__(self, notion_client=None, attachments_path=None, page_title=None):
         self._client = notion_client
         self._attachments_path = attachments_path
+        self._page_title = page_title
 
     def convert_rich_text(self, rich_text_list: list) -> str:
         if not rich_text_list:
@@ -102,28 +103,40 @@ class BlockConverter:
         return result
 
     def _convert_toggle_heading_1(self, block: dict, data: dict) -> str:
+        """折叠一级标题直接转为普通一级标题"""
         rich_text = self.convert_rich_text(data.get("rich_text", []))
         children = self._get_block_children(block)
-        child_md = self._convert_children(children) if children else ""
-        return f"<details>\n<summary># {rich_text}</summary>\n\n{child_md}\n</details>\n\n"
+        result = f"# {rich_text}\n\n"
+        if children:
+            result += self._convert_children(children)
+        return result
 
     def _convert_toggle_heading_2(self, block: dict, data: dict) -> str:
+        """折叠二级标题直接转为普通二级标题"""
         rich_text = self.convert_rich_text(data.get("rich_text", []))
         children = self._get_block_children(block)
-        child_md = self._convert_children(children) if children else ""
-        return f"<details>\n<summary>## {rich_text}</summary>\n\n{child_md}\n</details>\n\n"
+        result = f"## {rich_text}\n\n"
+        if children:
+            result += self._convert_children(children)
+        return result
 
     def _convert_toggle_heading_3(self, block: dict, data: dict) -> str:
+        """折叠三级标题直接转为普通三级标题"""
         rich_text = self.convert_rich_text(data.get("rich_text", []))
         children = self._get_block_children(block)
-        child_md = self._convert_children(children) if children else ""
-        return f"<details>\n<summary>### {rich_text}</summary>\n\n{child_md}\n</details>\n\n"
+        result = f"### {rich_text}\n\n"
+        if children:
+            result += self._convert_children(children)
+        return result
 
     def _convert_toggle(self, block: dict, data: dict) -> str:
+        """折叠列表直接转为普通段落，保留子内容"""
         rich_text = self.convert_rich_text(data.get("rich_text", []))
         children = self._get_block_children(block)
-        child_md = self._convert_children(children) if children else ""
-        return f"<details>\n<summary>{rich_text}</summary>\n\n{child_md}\n</details>\n\n"
+        result = f"{rich_text}\n\n" if rich_text else ""
+        if children:
+            result += self._convert_children(children)
+        return result
 
     def _convert_bulleted_list_item(self, block: dict, data: dict) -> str:
         rich_text = self.convert_rich_text(data.get("rich_text", []))
@@ -199,7 +212,12 @@ class BlockConverter:
         if self._client and self._attachments_path and url:
             filename = self._client.download_image(url, self._attachments_path)
             if filename != url:
-                image_url = f"attachments/{filename}"
+                # 使用相对于 Markdown 文件的路径
+                if self._page_title:
+                    attachments_folder = f"{self._page_title}_attachments"
+                    image_url = f"{attachments_folder}/{filename}"
+                else:
+                    image_url = f"attachments/{filename}"
         
         return f"![{alt}]({image_url})\n\n"
 

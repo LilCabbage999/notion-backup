@@ -34,10 +34,10 @@
   **基础文本块：**
   - 段落 (paragraph)
   - 标题 (heading_1 / heading_2 / heading_3)
-  - 折叠标题 (toggle_heading_1 / toggle_heading_2 / toggle_heading_3) → 转为 `<details><summary>` HTML 标签
+  - 折叠标题 (toggle_heading_1 / toggle_heading_2 / toggle_heading_3) → **转为普通标题（# / ## / ###）**
   - 无序列表 (bulleted_list_item)
   - 有序列表 (numbered_list_item)
-  - 折叠列表 (toggle) → 转为 `<details><summary>` HTML 标签
+  - 折叠列表 (toggle) → **转为普通段落，保留子内容**
   - 待办事项 (to_do) → 转为 `- [ ]` / `- [x]`
   - 引用 (quote)
   - 分割线 (divider)
@@ -54,7 +54,7 @@
   - 链接 (link)
 
   **媒体与嵌入块：**
-  - 图片 (image) → `![alt](url)`
+  - 图片 (image) → `![alt]({page_title}_attachments/filename)`，下载到页面专属附件文件夹
   - 视频 (video) → 保留外部链接
   - 文件 (file) → `[filename](url)`
   - PDF (pdf) → `[filename](url)`
@@ -87,6 +87,7 @@
 - **覆盖策略**: 每次备份生成新的日期目录，保留最新两份备份
 - **备份目录命名**: `backup_YYYY-MM-DD/` 格式
 - **Markdown 文件命名**: `页面原标题_YYYY-MM-DD.md` 格式（如 `项目计划_2026-04-01.md`）
+- **附件存储**: 每个页面的附件保存在 `{页面名称}_{日期}_attachments/` 子文件夹中
 - **目录结构**: 按页面层级组织子目录
 - **自动清理**: 备份完成后自动删除超过保留份数的旧备份
 
@@ -143,8 +144,12 @@ backups/
 ├── backup_2026-04-01/
 │   ├── 我的工作空间/
 │   │   ├── 项目计划_2026-04-01.md
+│   │   ├── 项目计划_2026-04-01_attachments/  # 该页面的附件
+│   │   │   ├── abc123.jpg
+│   │   │   └── def456.png
 │   │   ├── 学习笔记/
 │   │   │   ├── Python 学习_2026-04-01.md
+│   │   │   ├── Python 学习_2026-04-01_attachments/
 │   │   │   └── 读书笔记_2026-04-01.md
 │   │   └── 会议记录_2026-04-01.md
 │   └── 个人日记_2026-04-01.md
