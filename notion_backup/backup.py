@@ -62,8 +62,9 @@ class BackupManager:
         filename = f"{title}_{self.backup_date}.md"
         filepath = os.path.join(parent_dir, filename)
 
-        # 为每个页面创建独立的附件文件夹
-        page_attachments_path = os.path.join(parent_dir, f"{title}_attachments")
+        # 创建统一的 Attachments 目录，每个页面有专属子文件夹
+        attachments_base_path = os.path.join(parent_dir, "Attachments")
+        page_attachments_path = os.path.join(attachments_base_path, f"{title}_attachments")
         os.makedirs(page_attachments_path, exist_ok=True)
 
         blocks = self.client.get_block_children(metadata["id"])
